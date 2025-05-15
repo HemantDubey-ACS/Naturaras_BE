@@ -1,4 +1,6 @@
 import axios from 'axios';
+const cors = require('cors');
+app.use(cors());  // This allows all origins (*)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
