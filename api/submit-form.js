@@ -1,3 +1,6 @@
+import axios from "axios";
+import qs from "qs";
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -13,9 +16,10 @@ export default async function handler(req, res) {
 
   const { name, phone, location, plan } = req.body;
 
-  if (!name || !phone || !location || !plan) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+ // Validate input
+ if (!name || !phone || !location || !plan) {
+  return res.status(400).json({ message: "All fields are required" });
+}
 
   try {
     const formData = {
