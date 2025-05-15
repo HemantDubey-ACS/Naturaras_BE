@@ -34,13 +34,15 @@ export default async function handler(req, res) {
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36',
         },
       }
     );
-
+  
     return res.status(200).json({ message: 'Form submitted successfully' });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Failed to submit form' });
+    console.error('Error submitting form:', error.response?.data || error.message || error);
+    return res.status(500).json({ message: 'Failed to submit form'+ error.response?.data || error.message || error });
   }
+  
 }
