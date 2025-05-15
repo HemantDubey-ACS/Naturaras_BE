@@ -2,21 +2,19 @@ import axios from "axios";
 import qs from "qs";
 
 export default async function handler(req, res) {
-  // Handle OPTIONS preflight request first (important for CORS)
+  // Handle OPTIONS preflight immediately and return success with CORS headers
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
-  // Only allow POST for actual data submission
+  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  // Set CORS headers for POST response as well
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const { name, phone, area, frequency } = req.body;
@@ -47,6 +45,7 @@ export default async function handler(req, res) {
       .status(200)
       .json({ success: true, message: "Form submitted to Google successfully" });
   } catch (error) {
+    console.error(error); // Log for debugging
     return res.status(500).json({
       success: false,
       message: "Failed to submit to Google Form",
