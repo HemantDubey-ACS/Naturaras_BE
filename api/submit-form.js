@@ -16,30 +16,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const { name, phone, location, plan } = req.body;
-
-  if (!name || !phone || !location || !plan) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  const formData = {
-    "entry.1662515206": name,
-    "entry.1465121279": phone,
-    "entry.233960207": location,
-    "entry.1359623008": plan,
-  };
-
   try {
-    const encoded = qs.stringify(formData);
-    console.log("Submitting data:", encoded); // Debug log
+    // Destructure and normalize input
+    const { name, phone, location, plan } = req.body;
 
-    const response = await axios.post(
+    if (!name || !phone || !location || !plan) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Normalize and sanitize inputs
+    const formattedData = {
+      name: name.trim(),
+      phone: phone.trim(),
+      location: location.trim(),
+      plan: plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase(), // Capitalize first letter
+    };
+
+    const formData = {
+      "entry.1662515206": formattedData.name,
+      "entry.1465121279": formattedData.phone,
+      "entry.233960207": formattedData.location,
+      "entry.1359623008": formattedData.plan,
+    };
+
+    console.log("Sending data:", qs.stringify(formData)); // Debug log
+
+    await axios.post(
       "https://docs.google.com/forms/d/e/1FAIpQLScmaI-dQYF6hsIliDTOOv_bWAXQDcXzReFbsJBigE9qLX3SJw/formResponse",
-      encoded,
+      qs.stringify(formData),
       {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
 
