@@ -1,25 +1,18 @@
-import axios from "axios";
-import qs from "qs";
-
 export default async function handler(req, res) {
-  // Handle CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle preflight
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
 
-  // Allow only POST
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
   const { name, phone, location, plan } = req.body;
 
-  // Validate input
   if (!name || !phone || !location || !plan) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -42,11 +35,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, message: "Form submitted" });
   } catch (error) {
-    console.error("Submission failed:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    });
+    console.error("Submit error:", error.message);
     return res.status(500).json({ success: false, message: "Submission failed" });
   }
 }
