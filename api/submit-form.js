@@ -1,48 +1,48 @@
 import axios from 'axios';
+import qs from 'qs';
 
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow any origin
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    // Handle preflight request
-    return res.status(200).end();
-  }
-
+  // Handle only POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, phone, location, plan } = req.body;
+  // Parse the JSON body
+  const { name, phone, area, frequency } = req.body;
 
-  if (!name || !phone || !location || !plan) {
+  if (!name || !phone || !area || !frequency) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-  const formData = new URLSearchParams();
-  formData.append('entry.1662515206', name);
-  formData.append('entry.1465121279', phone);
-  formData.append('entry.233960207', location);
-  formData.append('entry.1359623008', plan);
+  const formData = {
+    "entry.1662515206": name,
+    "entry.1465121279": phone,
+    "entry.233960207": area,
+    "entry.1359623008": frequency
+  };
 
   try {
     await axios.post(
-      'https://docs.google.com/forms/d/e/1FAIpQLScmaI-dQYF6hsIliDTOOv_bWAXQDcXzReFbsJBigE9qLX3SJw/formResponse',
-      formData.toString(),
+      "https://docs.google.com/forms/d/e/1FAIpQLScmaI-dQYF6hsIliDTOOv_bWAXQDcXzReFbsJBigE9qLX3SJw/formResponse",
+      qs.stringify(formData),
       {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36',
-        },
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
       }
     );
-  
-    return res.status(200).json({ message: 'Form submitted successfully' });
+
+    // Add CORS headers manually if needed
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    return res.status(200).json({ success: true, message: 'Form submitted to Google successfully' });
   } catch (error) {
-    console.error('Error submitting form:', error.response?.data || error.message || error);
-    return res.status(500).json({ message: 'Failed to submit form'+ error.response?.data || error.message || error });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to submit to Google Form',
+      error: error.message
+    });
   }
-  
 }
